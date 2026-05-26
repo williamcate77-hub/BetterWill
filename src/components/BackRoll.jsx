@@ -1,29 +1,18 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
+import { useState } from 'react'
 import { today } from '../utils/date'
 import { click } from '../utils/audio'
 import { getUrgency, URGENCY } from '../utils/urgency'
 import { ProgressRing } from './ProgressRing'
 import { WeekDots } from './WeekDots'
-import { LevelPicker } from './LevelPicker'
 import { CountdownTimer } from './CountdownTimer'
 
-// Timer duration per level in seconds
-const TIMER = { beginner: 180, intermediate: 420, advanced: 420 }
+const DURATION = 180 // 3 minutes, fixed
 
-const HINTS = {
-  beginner:
-    'Feet shoulder-width, toes out 30–45°. Hold a doorframe for support. If heels lift, place a folded towel under each heel — this is a starting point, not failure. Hold 30–60 sec, rest 30 sec, repeat to accumulate 3 min. Each day try to reduce heel elevation by 2–3 mm.',
-  intermediate:
-    'Remove heel support. Feet turned out, hips fully below knees. Rest elbows inside knees and press outward (Malasana). Drop one knee toward floor, hold 5 sec, alternate. Practice standing up without hands. Shuffle left and right 10 paces staying low. 7 min total.',
-  advanced:
-    'Full squat, heels flat, no support — continuous 2–3 min blocks. Loaded squat with 10 kg kettlebell at chest. 3-sec down, 2-sec hold, 3-sec up × 10 reps. Squat rotation: rotate torso left, reach right arm long, hold 5 sec per side. 7 min total.',
-}
-
-export const AsianSquat = ({ data, update }) => {
+export const BackRoll = ({ data, update }) => {
   const [open, setOpen] = useState(false)
   const urgency = getUrgency(data.days, 7)
   const u = URGENCY[data.done ? 'done' : urgency]
-  const duration = TIMER[data.level]
 
   const onTimerComplete = useCallback(() => {
     if (data.done) return
@@ -38,10 +27,6 @@ export const AsianSquat = ({ data, update }) => {
     update({ done: true, days })
   }
 
-  const setLevel = (level) => { click(); update({ level }) }
-
-  const timerLabel = { beginner: '3 min', intermediate: '7 min', advanced: '7 min' }
-
   return (
     <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
       <button className="w-full text-left px-5 pt-5 pb-4" onClick={() => { click(); setOpen(o => !o) }}>
@@ -49,7 +34,7 @@ export const AsianSquat = ({ data, update }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold tracking-widest text-zinc-500 uppercase">
-                Daily · {timerLabel[data.level]}
+                Daily · 3 min
               </span>
               {data.done && <span className="text-[10px] font-bold tracking-wider text-[#00e676] uppercase">Done ✓</span>}
               {!data.done && urgency !== 'normal' && (
@@ -58,8 +43,8 @@ export const AsianSquat = ({ data, update }) => {
                 </span>
               )}
             </div>
-            <h2 className="text-lg font-bold mt-0.5">Asian Squat</h2>
-            <p className="text-xs text-zinc-500 mt-0.5">Ankle mobility · hip flexors · spinal decompression</p>
+            <h2 className="text-lg font-bold mt-0.5">Back Roll</h2>
+            <p className="text-xs text-zinc-500 mt-0.5">Thoracic decompression · spinal mobility · chest opener</p>
           </div>
           <ProgressRing progress={data.done ? 1 : 0} size={64} sw={5} color={u.ring}>
             <span className="text-lg" style={{ color: u.ring }}>{data.done ? '✓' : '—'}</span>
@@ -68,15 +53,15 @@ export const AsianSquat = ({ data, update }) => {
       </button>
 
       <div className="px-5 pb-5 space-y-4">
-        <LevelPicker value={data.level} onChange={setLevel} />
+        {open && (
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            Lie on a foam roller placed along your spine. Arms wide, let gravity open your chest and decompress the thoracic spine. Gently roll from upper shoulders to mid-back — not neck or lumbar. Pause at tight spots for 3 slow breaths. Finish with arms overhead for a full chest opener.
+          </p>
+        )}
 
-        {open && <p className="text-xs text-zinc-400 leading-relaxed">{HINTS[data.level]}</p>}
-
-        {/* Countdown timer */}
         {!data.done && (
           <CountdownTimer
-            key={data.level}
-            duration={duration}
+            duration={DURATION}
             onComplete={onTimerComplete}
             color={u.ring}
           />

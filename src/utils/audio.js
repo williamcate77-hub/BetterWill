@@ -3,7 +3,7 @@ let ctx = null
 const getCtx = () => {
   if (!ctx) {
     ctx = new (window.AudioContext || window.webkitAudioContext)()
-    // Mix with other audio (e.g. Spotify) on supported browsers
+    // Mix with Spotify / other audio on iOS 16.4+
     if ('audioSession' in navigator) {
       navigator.audioSession.type = 'ambient'
     }
@@ -28,19 +28,22 @@ const tone = (freq, dur, vol = 0.5) => {
   } catch { /* audio not available */ }
 }
 
-// Short single beep — phase transition signal
+// Subtle UI click — plays on every button press
+export const click = () => tone(1100, 0.06, 0.25)
+
+// Short single confirm beep
 export const beep = () => tone(880, 0.35, 0.5)
 
 // Two rising tones — slow→fast transition
 export const beepFast = () => {
-  tone(880, 0.25, 0.5)
-  setTimeout(() => tone(1320, 0.3, 0.55), 280)
+  tone(660, 0.25, 0.5)
+  setTimeout(() => tone(1100, 0.3, 0.55), 280)
 }
 
 // Two falling tones — fast→slow transition
 export const beepSlow = () => {
-  tone(1320, 0.25, 0.5)
-  setTimeout(() => tone(880, 0.3, 0.45), 280)
+  tone(1100, 0.25, 0.5)
+  setTimeout(() => tone(660, 0.3, 0.45), 280)
 }
 
 // Triple rising tones — session complete
@@ -50,7 +53,7 @@ export const beepDone = () => {
   setTimeout(() => tone(1320, 0.35, 0.6), 440)
 }
 
-// Unlock audio context on first user gesture
+// Unlock audio context on first user gesture (call on touchstart/click)
 export const unlockAudio = () => {
   try {
     const ac = getCtx()
