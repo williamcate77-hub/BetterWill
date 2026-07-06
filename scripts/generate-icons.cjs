@@ -1,42 +1,35 @@
 // Run once: node scripts/generate-icons.cjs
-// Requires: npm install canvas
-const { createCanvas } = require('canvas')
+// Requires: npm install sharp
+const sharp = require('sharp')
 const fs = require('fs')
 const path = require('path')
 
-function generateIcon(size) {
-  const canvas = createCanvas(size, size)
-  const ctx = canvas.getContext('2d')
+// Dumbbell on black, tilted for style. Green plates match the app's #00e676 accent.
+const DUMBBELL_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#000000"/>
+  <g transform="rotate(-30 256 256)">
+    <rect x="150" y="241" width="212" height="30" rx="15" fill="#ffffff"/>
+    <rect x="124" y="176" width="40" height="160" rx="16" fill="#00e676"/>
+    <rect x="348" y="176" width="40" height="160" rx="16" fill="#00e676"/>
+    <rect x="80" y="204" width="34" height="104" rx="14" fill="#00e676"/>
+    <rect x="398" y="204" width="34" height="104" rx="14" fill="#00e676"/>
+  </g>
+</svg>`
 
-  // Background
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(0, 0, size, size)
-
-  // Green ring
-  const cx = size / 2
-  const cy = size / 2
-  const r = size * 0.36
-  ctx.beginPath()
-  ctx.arc(cx, cy, r, 0, Math.PI * 2)
-  ctx.strokeStyle = '#00e676'
-  ctx.lineWidth = size * 0.07
-  ctx.stroke()
-
-  // "BW" text
-  ctx.fillStyle = '#ffffff'
-  ctx.font = `bold ${size * 0.28}px -apple-system, sans-serif`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText('BW', cx, cy)
-
-  return canvas.toBuffer('image/png')
+async function generateIcon(size, filename) {
+  const buffer = await sharp(Buffer.from(DUMBBELL_SVG))
+    .resize(size, size)
+    .png()
+    .toBuffer()
+  fs.writeFileSync(path.join(publicDir, filename), buffer)
 }
 
 const publicDir = path.join(__dirname, '..', 'public')
 fs.mkdirSync(publicDir, { recursive: true })
 
-fs.writeFileSync(path.join(publicDir, 'icon-192.png'), generateIcon(192))
-fs.writeFileSync(path.join(publicDir, 'icon-512.png'), generateIcon(512))
-fs.writeFileSync(path.join(publicDir, 'apple-touch-icon.png'), generateIcon(180))
-
-console.log('Icons generated in public/')
+Promise.all([
+  generateIcon(192, 'icon-192.png'),
+  generateIcon(512, 'icon-512.png'),
+  generateIcon(180, 'apple-touch-icon.png'),
+]).then(() => console.log('Icons generated in public/'))
