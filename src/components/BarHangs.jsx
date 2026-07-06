@@ -5,6 +5,7 @@ import { getUrgency, URGENCY } from '../utils/urgency'
 import { ProgressRing } from './ProgressRing'
 import { WeekDots } from './WeekDots'
 import { LevelPicker } from './LevelPicker'
+import { ResetButton } from './ResetButton'
 
 const CFG = {
   beginner: {
@@ -50,6 +51,9 @@ export const BarHangs = ({ data, update }) => {
 
   const setLevel = (level) => { click(); update({ level, taps: 0 }) }
 
+  const canReset = data.taps > 0 || data.days.includes(today())
+  const reset = () => update({ taps: 0, days: data.days.filter(d => d !== today()) })
+
   return (
     <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
       <button className="w-full text-left px-5 pt-5 pb-4" onClick={() => { click(); setOpen(o => !o) }}>
@@ -80,17 +84,20 @@ export const BarHangs = ({ data, update }) => {
         {open && <p className="text-xs text-zinc-400 leading-relaxed">{cfg.hint}</p>}
         <div className="flex items-center justify-between">
           <WeekDots days={data.days} target={7} label=" days" />
-          <button
-            onClick={tap}
-            disabled={isComplete}
-            className="ml-4 px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-            style={isComplete
-              ? { background: '#18181b', color: '#52525b' }
-              : { background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }
-            }
-          >
-            {isComplete ? 'Complete' : cfg.tapLabel}
-          </button>
+          <div className="ml-4 flex items-center gap-2">
+            {canReset && <ResetButton onReset={reset} />}
+            <button
+              onClick={tap}
+              disabled={isComplete}
+              className="px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+              style={isComplete
+                ? { background: '#18181b', color: '#52525b' }
+                : { background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }
+              }
+            >
+              {isComplete ? 'Complete' : cfg.tapLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

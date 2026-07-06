@@ -3,6 +3,7 @@ import { click } from '../utils/audio'
 import { getUrgency, URGENCY } from '../utils/urgency'
 import { WeekDots } from './WeekDots'
 import { LevelPicker } from './LevelPicker'
+import { ResetButton } from './ResetButton'
 
 const WEEKLY_TARGET = { beginner: 4, intermediate: 5, advanced: 5 }
 const LABEL         = { beginner: '4×/week', intermediate: '5×/week', advanced: '5×/week' }
@@ -27,6 +28,9 @@ export const MealWalk = ({ data, update }) => {
   }
 
   const setLevel = (level) => { click(); update({ level }) }
+
+  const canReset = todayCount > 0
+  const reset = () => update({ days: data.days.filter(d => d !== today()) })
 
   return (
     <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
@@ -63,13 +67,16 @@ export const MealWalk = ({ data, update }) => {
         <p className="text-xs text-zinc-600 leading-relaxed">{HINT[data.level]}</p>
         <div className="flex items-center justify-between">
           <WeekDots days={data.days} target={target} label=" walks" />
-          <button
-            onClick={tap}
-            className="ml-4 px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-            style={{ background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }}
-          >
-            Log Walk
-          </button>
+          <div className="ml-4 flex items-center gap-2">
+            {canReset && <ResetButton onReset={reset} />}
+            <button
+              onClick={tap}
+              className="px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+              style={{ background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }}
+            >
+              Log Walk
+            </button>
+          </div>
         </div>
       </div>
     </div>

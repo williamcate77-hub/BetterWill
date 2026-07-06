@@ -6,6 +6,7 @@ import { ProgressRing } from './ProgressRing'
 import { WeekDots } from './WeekDots'
 import { LevelPicker } from './LevelPicker'
 import { CountdownTimer } from './CountdownTimer'
+import { ResetButton } from './ResetButton'
 
 // Timer duration per level in seconds
 const TIMER = { beginner: 180, intermediate: 420, advanced: 420 }
@@ -39,6 +40,9 @@ export const AsianSquat = ({ data, update }) => {
   }
 
   const setLevel = (level) => { click(); update({ level }) }
+
+  const canReset = data.done || data.days.includes(today())
+  const reset = () => update({ done: false, days: data.days.filter(d => d !== today()) })
 
   const timerLabel = { beginner: '3 min', intermediate: '7 min', advanced: '7 min' }
 
@@ -84,17 +88,20 @@ export const AsianSquat = ({ data, update }) => {
 
         <div className="flex items-center justify-between">
           <WeekDots days={data.days} target={7} label=" days" />
-          <button
-            onClick={mark}
-            disabled={data.done}
-            className="ml-4 px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-            style={data.done
-              ? { background: '#18181b', color: '#52525b' }
-              : { background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }
-            }
-          >
-            {data.done ? 'Complete' : 'Mark Done'}
-          </button>
+          <div className="ml-4 flex items-center gap-2">
+            {canReset && <ResetButton onReset={reset} />}
+            <button
+              onClick={mark}
+              disabled={data.done}
+              className="px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+              style={data.done
+                ? { background: '#18181b', color: '#52525b' }
+                : { background: `${u.ring}18`, border: `1px solid ${u.ring}50`, color: u.ring }
+              }
+            >
+              {data.done ? 'Complete' : 'Mark Done'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

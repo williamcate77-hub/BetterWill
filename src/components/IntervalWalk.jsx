@@ -3,6 +3,7 @@ import { today, weekDays } from '../utils/date'
 import { beepFast, beepSlow, beepDone, click, unlockAudio } from '../utils/audio'
 import { getUrgency, URGENCY } from '../utils/urgency'
 import { WeekDots } from './WeekDots'
+import { ResetButton } from './ResetButton'
 
 // 10 phases × 3 min = 30 min, starting slow
 // [slow, fast, slow, fast, slow, fast, slow, fast, slow, fast]
@@ -97,6 +98,9 @@ export const IntervalWalk = ({ data, update }) => {
     setStatus('idle')
     setTick(0)
   }
+
+  const canReset = status === 'idle' && data.days.includes(today())
+  const resetToday = () => update({ days: data.days.filter(d => d !== today()) })
 
   return (
     <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
@@ -250,6 +254,7 @@ export const IntervalWalk = ({ data, update }) => {
           {status === 'running' && (
             <span className="text-[10px] text-zinc-700">Keep screen on for beeps</span>
           )}
+          {canReset && <ResetButton onReset={resetToday} />}
         </div>
       </div>
     </div>
